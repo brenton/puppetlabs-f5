@@ -44,7 +44,6 @@ Puppet::Type.type(:f5_string_class).provide(:f5_string_class, :parent => Puppet:
   end
 
   def create
-    debugger
     Puppet.debug("Puppet::Provider::F5_String_Class: creating F5 string class #{resource[:name]}")
 
     transport[wsdl].create_string_class([{:name => resource[:name], :members => []}])
