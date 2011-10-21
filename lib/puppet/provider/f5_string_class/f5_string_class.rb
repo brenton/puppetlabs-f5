@@ -27,7 +27,7 @@ Puppet::Type.type(:f5_string_class).provide(:f5_string_class, :parent => Puppet:
   def members=(member_hash)
     member_hash.each do |key,val|
       # iControl doesn't let you add a string class member that already exists
-      unless @string_class.members.include?(key)
+      if @string_class.nil? || ! @string_class.members.include?(key)
         transport[wsdl].add_string_class_member([{:name => resource[:name], :members => [key]}])
       end
 
@@ -36,7 +36,11 @@ Puppet::Type.type(:f5_string_class).provide(:f5_string_class, :parent => Puppet:
     end
 
     # Now remove members that shouldn't be there
-    extra_members = @string_class.members - member_hash.keys
+    extra_members = if @string_class.nil?
+                      []
+                    else
+                      @string_class.members - member_hash.keys
+                    end
     unless extra_members.empty?
       Puppet.debug("Puppet::Provider::F5_String_Class: Removing members #{extra_members.join(',')}")
       transport[wsdl].delete_string_class_member([{:name => resource[:name], :members => [extra_members]}])
